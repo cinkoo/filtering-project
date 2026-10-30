@@ -1,0 +1,353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Project Filtering Scorecard</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Source+Sans+3:wght@400;600&display=swap">
+<style>
+:root{--bg:#f4f6f9;--card:#fff;--ink:#1c2740;--mut:#5d6b85;--line:#d9dfe9;--acc:#0e8a8c;--accsoft:#dff3f3;--yes:#2e8b57;--no:#c8503f;--mid:#c58a00;--warn:#fff1d6;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#121a2b;--card:#1a2439;--ink:#e8edf7;--mut:#9aa8c2;--line:#2c3856;--acc:#3cc4c6;--accsoft:#183c46;--yes:#4cc283;--no:#ef7b69;--mid:#e8b73a;--warn:#3d3416}}
+:root[data-theme="dark"]{--bg:#121a2b;--card:#1a2439;--ink:#e8edf7;--mut:#9aa8c2;--line:#2c3856;--acc:#3cc4c6;--accsoft:#183c46;--yes:#4cc283;--no:#ef7b69;--mid:#e8b73a;--warn:#3d3416}
+*{box-sizing:border-box}html{scroll-padding-top:env(safe-area-inset-top,0px)}
+body{margin:0;background:var(--bg);color:var(--ink);font:17px/1.55 "Source Sans 3",system-ui,sans-serif}
+.w{max-width:900px;margin:0 auto;padding:20px 16px 80px}
+h1,h2{font-family:"Bricolage Grotesque",system-ui,sans-serif;line-height:1.15;margin:0}
+h1{font-size:2rem}h2{font-size:1.3rem}
+.lead{color:var(--mut);margin:.4rem 0 1rem}
+.bar{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:14px 0}
+.ban{background:var(--warn);border:1px solid var(--mid);border-radius:10px;padding:10px 14px;margin:10px 0}
+input[type=text],textarea{font:inherit;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+input[type=text]{flex:1;min-width:160px}
+button{font:inherit;cursor:pointer;color:var(--ink);background:var(--card);border:1px solid var(--line);border-radius:8px;padding:8px 12px}
+button:hover{border-color:var(--acc)}button:disabled,input:disabled,textarea:disabled{opacity:.65;cursor:not-allowed}
+:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+.tg{display:flex;gap:6px;align-items:center}
+.cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px;margin:8px 0 20px}
+.pc{text-align:left;padding:12px;border-radius:12px}
+.pc.on{border:2px solid var(--acc);background:var(--accsoft)}
+.pc b{display:block;font-family:"Bricolage Grotesque",system-ui,sans-serif}
+.pc .pct2{font-weight:700;color:var(--acc)}
+.ph{display:flex;gap:8px;margin-bottom:4px}
+.dt{background:var(--card);border:1px solid var(--line);border-radius:12px;padding:10px 14px;margin:10px 0}
+.dt summary{cursor:pointer;font-weight:600}
+.dt label{display:block;margin-top:10px;font-weight:600}
+.dt textarea{width:100%}
+.sum{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:16px;margin:12px 0 22px}
+.big{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+.pct{font:700 2.6rem "Bricolage Grotesque",system-ui,sans-serif;color:var(--acc)}
+.track{height:10px;background:var(--line);border-radius:6px;overflow:hidden}
+.fill{height:100%;background:var(--acc);width:0;transition:width .3s}
+.sr{display:grid;grid-template-columns:minmax(120px,1fr) 2fr 48px;gap:10px;align-items:center;margin:8px 0;font-size:.95rem}
+.sec{background:var(--card);border:1px solid var(--line);border-radius:14px;margin:0 0 18px;overflow:hidden}
+.sh{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;background:var(--accsoft);gap:10px}
+.sc{font-weight:600;color:var(--acc);white-space:nowrap}
+.it{padding:14px 16px;border-top:1px solid var(--line)}
+.q{font-weight:600;margin-bottom:8px}
+.ch{display:flex;flex-wrap:wrap;gap:8px}
+.ch button{border-radius:20px;padding:6px 14px}
+.ch button.on{background:var(--acc);border-color:var(--acc);color:#fff}
+.ch button.on.y{background:var(--yes);border-color:var(--yes)}
+.ch button.on.n{background:var(--no);border-color:var(--no)}
+.ch button.on.m{background:var(--mid);border-color:var(--mid)}
+.scale{display:flex;align-items:center;gap:12px}
+.scale input{flex:1;accent-color:var(--acc)}
+.scale output{font:700 1.3rem "Bricolage Grotesque",system-ui,sans-serif;min-width:2.4ch;text-align:right}
+.hint{font-size:.85rem;color:var(--mut)}
+textarea{width:100%;margin-top:8px;min-height:40px;resize:vertical;font-size:.95rem}
+.team{margin-top:8px;font-size:.88rem;color:var(--mut);display:flex;flex-wrap:wrap;gap:4px 14px}
+.team:empty{display:none}
+.sp{background:var(--warn);border:1px solid var(--mid);color:var(--ink);border-radius:6px;padding:0 8px;font-weight:600}
+table{width:100%;border-collapse:collapse;font-size:.92rem}
+th,td{padding:6px 8px;border-bottom:1px solid var(--line);text-align:left;white-space:nowrap}
+.sx{overflow-x:auto}
+.yt{margin:22px 0 10px}
+@media(max-width:560px){.sr{grid-template-columns:1fr 48px}.sr .track{grid-column:1/3;order:3}}
+@media print{.bar,button,.noprint{display:none!important}body{background:#fff}}
+</style>
+</head>
+<body>
+<div class="w">
+<h1>Project Filtering Scorecard</h1>
+<p class="lead">Anyone can add, edit or delete project ideas. Each member scores every project on their own, everyone sees everyone’s scores, and questions where the team disagrees are flagged.</p>
+<div id="ban" class="ban" hidden></div>
+<div class="bar noprint">
+<input type="text" id="un" placeholder="Your name" aria-label="Your name" hidden style="max-width:200px">
+<button id="add">+ Add a project idea</button>
+<label class="tg"><input type="checkbox" id="nscs"> NSCS criteria</label>
+<label class="tg"><input type="checkbox" id="lab"> LABEL criteria</label>
+<button id="prt">Print / PDF</button>
+</div>
+<details class="dt noprint" id="sy" hidden><summary>Team sync (share with your team without Claude)</summary>
+<p class="hint">One person does steps 1 to 4 once. Everyone else just opens the invite link. Until then, the page works alone on this device.</p>
+<ol class="hint"><li>Open console.firebase.google.com, create a project (Analytics not needed).</li><li>Build, then Realtime Database, then Create database.</li><li>Open the Rules tab and paste: {"rules":{"board":{".read":true,".write":true}}} then Publish.</li><li>Copy the database URL (it ends in firebaseio.com or firebasedatabase.app) and paste it below.</li></ol>
+<div class="bar"><input type="text" id="su" placeholder="https://your-project-default-rtdb.firebaseio.com"><button id="sc">Connect</button><button id="sx" hidden>Disconnect</button></div>
+<div class="bar" id="siw" hidden><input type="text" id="si" readonly aria-label="Invite link"><button id="sk">Copy invite link</button></div>
+<p class="hint">Anyone with the link can read and write the board, so keep private information out of it. No server option: export your data, send the file, and import teammates’ files.</p>
+<div class="bar"><button id="ex">Export data</button><label class="hint">Import: <input type="file" id="im" accept=".json"></label></div>
+</details>
+<div id="list" class="cards"></div>
+<div id="pp" hidden>
+<div class="ph"><input type="text" id="pn" data-f="name" placeholder="Project name" aria-label="Project name"><button id="pd" class="noprint">Delete</button></div>
+<div class="hint" id="po"></div>
+<details class="dt"><summary>Intro and details (optional, can be filled later)</summary>
+<label for="f-intro">One-line summary: what problem and who benefits? <span class="hint">max 30 words · <span id="c-intro">0</span></span></label><textarea id="f-intro" data-f="intro" data-max="30" rows="2"></textarea>
+<label for="f-problem">Problem statement <span class="hint">max 200 words · <span id="c-problem">0</span></span></label><textarea id="f-problem" data-f="problem" data-max="200" rows="4"></textarea>
+<label for="f-solution">Proposed solution <span class="hint">max 300 words · <span id="c-solution">0</span></span></label><textarea id="f-solution" data-f="solution" data-max="300" rows="5"></textarea>
+</details>
+<div class="sum" id="sum"></div>
+<h2 class="yt">Your scores</h2>
+<div id="form"></div>
+</div>
+<div class="sum"><h2>Compare projects</h2><div class="sx" id="cmp"></div></div>
+</div>
+<script>
+
+var YN=["Yes","No","Not sure","Need to discuss carefully"],YV={"Yes":1,"No":0,"Not sure":.4,"Need to discuss carefully":.65},YC={"Yes":"y","No":"n","Not sure":"","Need to discuss carefully":"m"};
+var S=[
+{t:"The problem",i:[
+{q:"Is it a real problem?",k:"yn"},
+{q:"Where is the problem located?",k:"ch",o:["Algeria only","Global","Global and Algeria","Regional"]},
+{q:"Does it have a clear purpose and direction, or does it try to be everything without a roadmap?",k:"yn",ph:"If yes: how? If no: why?"}]},
+{t:"Realism in Algeria",i:[
+{q:"Is the needed technology available in Algeria?",k:"yn"},
+{q:"Would it be socially accepted?",k:"yn"},
+{q:"Are people willing to adapt to it?",k:"yn"},
+{q:"Is it legal?",k:"yn"}]},
+{t:"Profit and customers",i:[
+{q:"Does it make a profit, or does it only propose high tech?",k:"yn"},
+{q:"Who are the customers?",k:"mu",o:["Governments and authorities (schools, hospitals…)","Private entities (companies, clinics…)","Individuals (anyone)","Individuals (a specific group)"],ph:"Which group exactly?"},
+{q:"Would they realistically buy it? Why?",k:"yn",ph:"Why would they buy, or not?"},
+{q:"How large is the market?",k:"sc",h:"1 = tiny, 10 = huge"},
+{q:"What type of payment?",k:"mu",o:["One-time purchase with insurance","One-time purchase without insurance","Monthly subscription","Yearly subscription"]}]},
+{t:"Competition, value and originality",i:[
+{q:"Do other solutions to the problem exist?",k:"mu",o:["Similar product","Different product","Same market","Another country’s market"],ns:1},
+{q:"Do existing solutions have flaws or gaps that can be improved?",k:"yn",ph:"Which flaws or gaps?"},
+{q:"Is it worth it, or is the traditional approach enough? Why is it better than what already exists?",k:"yn",ph:"Why is it better?"},
+{q:"Originality: is the idea new compared to what already exists?",k:"yn",ph:"What exactly is new?"}]},
+{t:"After the sale, cost and marketing",i:[
+{q:"Does it need continuous follow-up after the sale?",k:"yn",ns:1},
+{q:"What kind of follow-up?",k:"mu",o:["Updates","Human labor","Issue-fixing service"]},
+{q:"Is the follow-up profitable, or does it need a budget?",k:"ch",o:["Profitable","Needs a budget"]},
+{q:"Does the product need marketing?",k:"yn",ns:1},
+{q:"How much investment will it need during, after and beyond the prototype?",k:"tx",ph:"During prototype / after / beyond"},
+{q:"What is the total estimated budget for the prototype?",k:"tx",ph:"Amount and main items"},
+{q:"Where would the money come from?",k:"tx"},
+{q:"Is the prototype budget realistic for us?",k:"sc",h:"1 = out of reach, 10 = easily affordable"}]},
+{t:"Achievability and technology",i:[
+{q:"How achievable is it?",k:"sc",h:"1 = very hard, 10 = easy"},
+{q:"To what level can a prototype be built in the limited time?",k:"sc",h:"1 = barely, 10 = fully working"},
+{q:"Can we show it working clearly in a few minutes (demo)?",k:"yn"},
+{q:"What kind of tech does it need?",k:"tx"},
+{q:"What field does it serve?",k:"mu",o:["Medical","Educational","Pure tech"],ph:"Other field?"},
+{q:"How is it represented?",k:"mu",o:["Service","Product","Software","Hardware","Platform (web page or app)","Desktop software","IoT or integrated device","Hybrid / cross-platform"],ph:"If cross-platform, which part serves which purpose (marketing, product presentation, the software that does the job)?"}]},
+{t:"Data, risks and ethics",i:[
+{q:"Does it collect personal data?",k:"yn",ns:1},
+{q:"Is personal data handled properly (consent, storage, security)?",k:"yn",ph:"How?"},
+{q:"Is the project ethically acceptable?",k:"yn"},
+{q:"What is the biggest risk?",k:"tx"},
+{q:"Is there a plan B if that risk happens?",k:"yn",ph:"What is plan B?"}]},
+{t:"Skills, knowledge and team fit",i:[
+{q:"What skills need to be learned?",k:"tx"},
+{q:"How realistic is learning them in a short time?",k:"sc",h:"1 = unrealistic, 10 = easy"},
+{q:"What knowledge does it need?",k:"tx"},
+{q:"Do we have that knowledge, or are we willing to learn it?",k:"ch",o:["We have it","Willing to learn","Both"]},
+{q:"Does it fit the skills of all the members?",k:"yn"},
+{q:"Can the work be split fairly?",k:"yn"}]},
+{t:"Flexibility and independence",i:[
+{q:"How flexible is it?",k:"sc",h:"1 = rigid, 10 = very flexible"},
+{q:"Does it need outside supervision that might lead to losing the idea?",k:"yn",neg:1}]},
+{t:"School form requirements (NSCS)",tog:"nscs",i:[
+{q:"Is there a clear way to validate it (user testing, benchmarks, expert review)?",k:"yn",ph:"Which method?"},
+{q:"Educational value: how much does it train cybersecurity skills?",k:"sc",h:"1 = none, 10 = a lot"},
+{q:"Are the constraints manageable (data access, hardware, lab facilities, approvals, licenses)?",k:"yn",ph:"List the constraints"},
+{q:"Potential partner or beneficiary",k:"mu",o:["Our school","External academic partner","Industry partner","Government / public body","Civil society / NGO"],ph:"Specify who"},
+{q:"Intellectual property / publication preference",k:"ch",o:["Publish","Pursue IP","Keep internal / confidential","Undecided"]},
+{q:"Cross-disciplinary skills the team would acquire",k:"mu",o:["Project planning and scheduling","Design thinking","Risk assessment and mitigation","Value proposition and business model","Digital marketing","Teamwork, leadership, conflict resolution","Presentation and pitching","Budgeting and resource planning"],ph:"Top 3 priorities, in order"}]},
+{t:"LABEL criteria (startup certificate, decision 1275)",tog:"label",i:[
+{q:"Is the value proposition clear (guide list)?",k:"mu",o:["Newness","Performance","Customization","Design","Price","Cost reduction","Risk reduction","Accessibility","Ease of use","Getting a job done"],ph:"Which values, concretely?"},
+{q:"Are the business goals and target market share defined (short, medium, long term)?",k:"yn"},
+{q:"Can the project be split into tasks with a timeline and key results?",k:"yn"},
+{q:"Innovation: what is the nature of the innovation?",k:"mu",o:["Radical","Market","Technological","Incremental"],ns:1},
+{q:"Which innovation fields apply?",k:"mu",o:["New processes","New experiences","New features","New customers","New offers","New business models"],ns:1},
+{q:"How strong and defensible is the innovation?",k:"sc",h:"1 = weak, 10 = strong"},
+{q:"Could we sign purchase contracts with some key customers?",k:"yn"},
+{q:"Production and organization: can we describe the production or service steps from start to end?",k:"yn"},
+{q:"Are supply policy, main suppliers and payment terms defined?",k:"yn"},
+{q:"Are the jobs created, the workforce needed and subcontracting options defined?",k:"yn"},
+{q:"Are key partners identified (suppliers, public bodies, labs, banks, incubators)?",k:"yn"},
+{q:"Can we forecast turnover (realistic, optimistic and pessimistic views)?",k:"yn"},
+{q:"Can we prepare the forecast income statement, working capital need and year-1 cash plan?",k:"yn"},
+{q:"Can we prepare the annexes (balance sheet, forecast income statement, cash flow, business model canvas)?",k:"yn"}]}
+];
+var B={projects:{},members:{},settings:{}},be=null,mid="me",mode="local",me={name:"",votes:{}},loaded=false,ro=false,usr=null,dlc=null,names={},cur=null,gone={},sig="",pend={},hold={},sh={},ptm=null,mtm=null,dtm=null;
+function $(i){return document.getElementById(i)}
+function esc(s){return String(s==null?"":s).replace(/[&<>"]/g,function(c){return{"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]})}
+function A(v){return Array.isArray(v)?v:(v&&typeof v==="object"?Object.keys(v).map(function(k){return v[k]}):[])}
+function ls(k,v){try{if(v===undefined)return localStorage.getItem(k);if(v===null)localStorage.removeItem(k);else localStorage.setItem(k,v)}catch(e){}return null}
+function nm(id){return id===mid?"You":((B.members[id]&&B.members[id].name)||names[id]||"Member")}
+function banner(t){var b=$("ban");b.hidden=!t;b.textContent=t||""}
+function fail(e){var c=e&&e.code;banner(c==="not_granted"?"You have read-only access, so your changes are not saved. Ask the owner for contributor access.":"Could not save: "+((e&&e.message)||e))}
+function docs(){var r={};for(var k in B.members)r[k]=B.members[k];r[mid]=me;return r}
+function allP(){var r=[];for(var k in B.projects)if(!gone[k])r.push({id:k,p:B.projects[k]});return r.sort(function(a,b){return(a.p.t||0)-(b.p.t||0)})}
+function on(t){return B.settings[t]!==false}
+function inc(s){return!s.tog||on(s.tog)}
+function sv(it,d){var x=d&&d.v;if(x==null||x==="")return null;var v=it.k==="yn"?YV[x]:it.k==="sc"?(x-1)/9:null;if(v==null)return null;return it.neg?1-v:v}
+function ss(si,a){var t=0,n=0;S[si].i.forEach(function(it,j){if(it.ns||(it.k!=="yn"&&it.k!=="sc"))return;var v=sv(it,a[si+"-"+j]);if(v!=null){t+=v;n++}});return n?t/n:null}
+function tot(a){var t=0,n=0;S.forEach(function(s,i){if(!inc(s))return;var v=ss(i,a);if(v!=null){t+=v;n++}});return n?t/n:null}
+function avg(r){r=r.filter(function(x){return x!=null});return r.length?r.reduce(function(a,b){return a+b},0)/r.length:null}
+function P(v){return v==null?"–":Math.round(v*100)+"%"}
+function mv(m,pid){var d=docs()[m];return(d&&d.votes&&d.votes[pid])||{}}
+function grp(pid,f){return avg(Object.keys(docs()).map(function(m){return f(mv(m,pid))}))}
+function verdict(o){return o==null?"Answer the scored questions (yes/no and scales) to see a result.":(o>=.75?"Strong candidate":o>=.55?"Promising, needs discussion":"Weak or risky: reconsider")+" · indicative only"}
+function wc(s){s=(s||"").trim();return s?s.split(/\s+/).length:0}
+function ranked(){return allP().map(function(x){return{x:x,g:grp(x.id,tot)}}).sort(function(a,b){return(b.g==null?-1:b.g)-(a.g==null?-1:a.g)})}
+function renderList(){
+var h="";allP().forEach(function(x){var n=Object.keys(docs()).filter(function(m){return tot(mv(m,x.id))!=null}).length;
+h+='<button type="button" class="pc'+(x.id===cur?" on":"")+'" data-p="'+x.id+'"><b>'+esc(x.p.name||"Untitled")+'</b><span class="hint">by '+esc(nm(x.p.by))+' · '+n+' scored</span><br><span class="pct2">'+P(grp(x.id,tot))+'</span></button>'});
+$("list").innerHTML=h||'<p class="hint">No project yet. Add the first project idea.</p>'}
+function cmpHtml(){
+var r=ranked(),c='<table><tr><th>Project</th><th>By</th>';
+S.forEach(function(s,i){if(inc(s))c+='<th>S'+(i+1)+'</th>'});c+='<th>Team</th></tr>';
+r.forEach(function(q){c+='<tr><td>'+esc(q.x.p.name||"Untitled")+'</td><td>'+esc(nm(q.x.p.by))+'</td>';S.forEach(function(s,i){if(inc(s))c+='<td>'+P(grp(q.x.id,function(a){return ss(i,a)}))+'</td>'});c+='<td><b>'+P(q.g)+'</b></td></tr>'});
+return r.length?c+'</table><p class="hint">'+S.map(function(s,i){return inc(s)?"S"+(i+1)+" = "+esc(s.t):""}).filter(Boolean).join(" · ")+'</p>':'<p class="hint">Nothing to compare yet.</p>'}
+function renderSum(){
+if(cur&&B.projects[cur]){
+var g=grp(cur,tot),h='<div class="big"><span class="pct">'+P(g)+'</span><span>team average<br><span class="hint">'+verdict(g)+'</span></span></div><div class="track"><div class="fill" style="width:'+(g==null?0:g*100)+'%"></div></div><div style="margin-top:12px">';
+S.forEach(function(s,i){if(!inc(s))return;var v=grp(cur,function(a){return ss(i,a)});h+='<div class="sr"><span>'+esc(s.t)+'</span><div class="track"><div class="fill" style="width:'+(v==null?0:v*100)+'%"></div></div><b>'+P(v)+'</b></div>'});
+h+='</div><div class="sx" style="margin-top:12px"><table><tr><th>Member</th><th>Total</th>';
+S.forEach(function(s,i){if(inc(s))h+='<th>S'+(i+1)+'</th>'});h+='</tr>';
+var ds=docs();Object.keys(ds).forEach(function(m){var a=mv(m,cur);h+='<tr><td>'+esc(nm(m))+'</td><td><b>'+P(tot(a))+'</b></td>';S.forEach(function(s,i){if(inc(s))h+='<td>'+P(ss(i,a))+'</td>'});h+='</tr>'});
+$("sum").innerHTML=h+'</table></div>';
+S.forEach(function(s,i){var e=$("ss"+i);if(e)e.textContent=P(ss(i,mv(mid,cur)))})}
+$("cmp").innerHTML=cmpHtml()}
+function tv(it,x){return it.k==="sc"?x+"/10":Array.isArray(x)?x.join(", "):x}
+function teamHtml(si,j){
+var it=S[si].i[j],k=si+"-"+j,rows=[],vs=[],ds=docs();
+for(var m in ds){var d=mv(m,cur)[k];if(!d)continue;var v=it.k==="mu"?A(d.v):d.v;if(v==null||v===""||(Array.isArray(v)&&!v.length))continue;
+var s=sv(it,d);if(s!=null)vs.push(s);if(m===mid)continue;
+rows.push('<span><b>'+esc(nm(m))+'</b>: '+esc(tv(it,v))+(d.n?' <i>“'+esc(String(d.n).slice(0,80))+'”</i>':'')+'</span>')}
+var sp=vs.length>1&&Math.max.apply(null,vs)-Math.min.apply(null,vs)>=.5;
+return rows.length||sp?(sp?'<span class="sp">⚠ Team disagrees</span>':'')+rows.join(""):""}
+function updTeam(){document.querySelectorAll(".it").forEach(function(e){e.querySelector(".team").innerHTML=teamHtml(+e.dataset.s,+e.dataset.j)})}
+function updFields(){
+var p=cur&&B.projects[cur];if(!p)return;
+$("po").textContent="Idea by "+nm(p.by)+". Anyone on the team can edit it.";
+$("pd").hidden=ro;
+[["pn","name"],["f-intro","intro"],["f-problem","problem"],["f-solution","solution"]].forEach(function(f){var e=$(f[0]);e.disabled=ro;if(document.activeElement!==e)e.value=p[f[1]]||"";if(f[1]!=="name")$("c-"+f[1]).textContent=wc(e.value)})}
+function build(){
+var a=mv(mid,cur),h="";
+S.forEach(function(s,si){if(!inc(s))return;
+h+='<section class="sec"><div class="sh"><h2>'+(si+1)+'. '+esc(s.t)+'</h2><span class="sc" id="ss'+si+'"></span></div>';
+s.i.forEach(function(it,j){
+var k=si+"-"+j,d=a[k]||{},v=it.k==="mu"?A(d.v):d.v;
+h+='<div class="it" data-k="'+k+'" data-s="'+si+'" data-j="'+j+'"><div class="q">'+esc(it.q)+'</div>';
+if(it.k==="yn"||it.k==="ch"||it.k==="mu"){var o=it.k==="yn"?YN:it.o;h+='<div class="ch" data-t="'+it.k+'">';
+o.forEach(function(x){var on=it.k==="mu"?v.indexOf(x)>-1:v===x;h+='<button type="button" data-v="'+esc(x)+'" aria-pressed="'+on+'" class="'+(on?"on ":"")+(it.k==="yn"?YC[x]:"")+'">'+esc(x)+'</button>'});h+='</div>'}
+else if(it.k==="sc"){h+='<div class="scale"><input type="range" min="1" max="10" value="'+(v||5)+'" data-r="1" aria-label="Score"><output>'+(v||"–")+'</output></div><div class="hint">'+it.h+(v?"":" · drag to set")+'</div>'}
+h+='<textarea rows="1" data-n="1" placeholder="'+esc(it.ph||"Notes")+'">'+esc(d.n||"")+'</textarea><div class="team"></div></div>'});
+h+='</section>'});
+$("form").innerHTML=h;$("pp").hidden=false;updTeam();updFields();renderList();renderSum()}
+function vote(k){var v=me.votes[cur]=me.votes[cur]||{};return v[k]=v[k]||{}}
+function saveMe(){clearTimeout(mtm);mtm=setTimeout(function(){be.putMe(mid,{name:me.name||"",votes:me.votes}).catch(fail)},500)}
+function patchP(f,v){var p=B.projects[cur];if(!p)return;p[f]=v;p.u=Date.now();var q=pend[cur]=pend[cur]||{};q[f]=v;q.u=p.u;var h=hold[cur]=hold[cur]||{f:{}};h.f[f]=v;h.f.u=p.u;h.t=Date.now()+5000;var id=cur;clearTimeout(ptm);ptm=setTimeout(function(){var o=pend;pend={};for(var k in o)be.patchProject(k,o[k]).catch(fail)},500)}
+function syncUi(){
+$("nscs").checked=on("nscs");$("lab").checked=on("label");
+var s=[on("nscs"),on("label")].join();if(s!==sig){var had=sig!=="";sig=s;if(had&&cur&&B.projects[cur])build()}}
+function refresh(){syncUi();renderList();renderSum();if(cur&&B.projects[cur]){updTeam();updFields()}else{cur=null;$("pp").hidden=true}}
+$("form").addEventListener("click",function(e){
+var b=e.target.closest("button[data-v]");if(!b)return;
+var it=b.closest(".it"),d=vote(it.dataset.k),t=b.parentNode.dataset.t,x=b.dataset.v;
+if(t==="mu"){d.v=A(d.v);var p=d.v.indexOf(x);p>-1?d.v.splice(p,1):d.v.push(x);b.classList.toggle("on");b.setAttribute("aria-pressed",p<0)}
+else{d.v=d.v===x?"":x;[].forEach.call(b.parentNode.children,function(c){c.classList.remove("on");c.setAttribute("aria-pressed","false")});if(d.v){b.classList.add("on");b.setAttribute("aria-pressed","true")}}
+saveMe();refresh()});
+$("form").addEventListener("input",function(e){
+var it=e.target.closest(".it");if(!it)return;var d=vote(it.dataset.k);
+if(e.target.dataset.r){d.v=+e.target.value;e.target.nextSibling.textContent=d.v;saveMe();refresh()}
+else if(e.target.dataset.n){d.n=e.target.value;saveMe()}});
+$("list").addEventListener("click",function(e){var b=e.target.closest("button[data-p]");if(!b)return;cur=b.dataset.p;build()});
+$("pp").addEventListener("input",function(e){var f=e.target.dataset.f;if(!f||!cur)return;patchP(f,e.target.value);if(e.target.dataset.max)$("c-"+f).textContent=wc(e.target.value);renderList();$("cmp").innerHTML=cmpHtml()});
+$("add").onclick=function(){
+if(ro){banner("You have read-only access, so you cannot add projects.");return}
+var id="p"+Date.now().toString(36)+Math.random().toString(36).slice(2,5),t=Date.now(),o={name:"New project",t:t,u:t,by:mid};
+B.projects[id]=o;cur=id;be.putProject(id,o).catch(fail);build();$("pn").focus();$("pn").select()};
+$("pd").onclick=function(){
+var b=this;if(!b.dataset.arm){b.dataset.arm="1";b.textContent="Click again to delete";clearTimeout(dtm);dtm=setTimeout(function(){delete b.dataset.arm;b.textContent="Delete"},4000);return}
+delete b.dataset.arm;b.textContent="Delete";var id=cur;gone[id]=1;delete B.projects[id];delete me.votes[id];cur=null;be.delProject(id).catch(fail);saveMe();refresh()};
+function setting(k,v){B.settings[k]=v;sh[k]={v:v,t:Date.now()+5000};var o={};o[k]=v;be.patchSettings(o).catch(fail);refresh()}
+$("nscs").onchange=function(){setting("nscs",this.checked)};
+$("lab").onchange=function(){setting("label",this.checked)};
+$("un").oninput=function(){me.name=this.value;ls("pf_name",me.name);saveMe();refresh()};
+function dl(name,text,type){
+if(dlc)return dlc.save({filename:name,data:text}).catch(function(e){banner("Download failed: "+((e&&e.message)||e))});
+var a=document.createElement("a");a.href=URL.createObjectURL(new Blob([text],{type:type||"text/plain"}));a.download=name;document.body.appendChild(a);a.click();a.remove()}
+function csv(){
+var cols=S.map(function(s,i){return i}).filter(function(i){return inc(S[i])});
+var rows=[["Project","By"].concat(cols.map(function(i){return S[i].t})).concat(["Team average"])];
+ranked().forEach(function(q){rows.push([q.x.p.name||"Untitled",nm(q.x.p.by)].concat(cols.map(function(i){return P(grp(q.x.id,function(a){return ss(i,a)}))})).concat([P(q.g)]))});
+return"\ufeff"+rows.map(function(r){return r.map(function(c){return'"'+String(c).replace(/"/g,'""')+'"'}).join(",")}).join("\n")}
+$("prt").onclick=function(){if(dlc)dl("project-ranking.csv",csv(),"text/csv");else window.print()};
+$("ex").onclick=function(){var m=docs();dl("project-filtering-data.json",JSON.stringify({projects:B.projects,members:m,settings:B.settings}),"application/json")};
+$("im").onchange=function(){var f=this.files[0];if(!f)return;
+f.text().then(function(t){var d=JSON.parse(t),n=0,p=d.projects||{},m=d.members||{};
+for(var id in p){var c=B.projects[id];if(!c||(p[id].u||p[id].t||0)>(c.u||c.t||0)){delete gone[id];B.projects[id]=p[id];be.putProject(id,p[id]).catch(fail);n++}}
+for(var k in m){if(k===mid)continue;B.members[k]=m[k];be.putMe(k,m[k]).catch(fail);n++}
+refresh();banner("Imported "+n+" items.")}).catch(function(){banner("That file could not be read.")})};
+function localBackend(){
+var key="pf3",b=null,cb=null;try{b=JSON.parse(ls(key)||"null")}catch(e){}b=b||{projects:{},members:{},settings:{}};
+function w(){ls(key,JSON.stringify(b));if(cb)cb(JSON.parse(JSON.stringify(b)));return Promise.resolve()}
+return{start:function(c){cb=c;cb(JSON.parse(JSON.stringify(b)))},
+putProject:function(id,o){b.projects[id]=o;return w()},
+patchProject:function(id,f){b.projects[id]=Object.assign(b.projects[id]||{},f);return w()},
+delProject:function(id){delete b.projects[id];return w()},
+putMe:function(id,d){b.members[id]=JSON.parse(JSON.stringify(d));return w()},
+patchSettings:function(f){Object.assign(b.settings,f);return w()}}}
+function fbBackend(base){
+base=base.replace(/\/+$/,"");
+function req(m,p,body){return fetch(base+"/board"+(p?"/"+p:"")+".json",{method:m,headers:{"Content-Type":"application/json"},body:body===undefined?undefined:JSON.stringify(body)}).then(function(r){if(!r.ok)throw new Error("HTTP "+r.status);return r.json()})}
+return{start:function(cb){var down=false;function poll(){req("GET","").then(function(d){if(down){down=false;banner("")}cb(d||{})}).catch(function(e){down=true;banner("Cannot reach the shared database ("+e.message+"). Check the URL and the rules.")})}poll();setInterval(poll,4000)},
+putProject:function(id,o){return req("PUT","projects/"+id,o)},
+patchProject:function(id,f){return req("PATCH","projects/"+id,f)},
+delProject:function(id){return req("DELETE","projects/"+id)},
+putMe:function(id,d){return req("PUT","members/"+id,d)},
+patchSettings:function(f){return req("PATCH","settings",f)}}}
+function claudeBackend(db){
+var P0=db.collection("projects"),M0=db.collection("members"),S0=db.doc("settings/board"),st={p:{},m:{},s:{}};
+function er(e){banner("Could not load the shared board: "+((e&&e.message)||e))}
+return{start:function(cb){function push(){cb({projects:st.p,members:st.m,settings:st.s})}
+P0.onSnapshot(function(sn){st.p={};sn.docs.forEach(function(d){st.p[d.id]=d.data()});push()},er);
+M0.onSnapshot(function(sn){st.m={};sn.docs.forEach(function(d){st.m[d.id]=d.data()});push()},er);
+S0.onSnapshot(function(d){st.s=d.exists?d.data():{};push()},er)},
+putProject:function(id,o){return P0.doc(id).set(o)},
+patchProject:function(id,f){return P0.doc(id).update(f)},
+delProject:function(id){return P0.doc(id).delete()},
+putMe:function(id,d){return M0.doc(id).set(d)},
+patchSettings:function(f){return S0.set(Object.assign({},B.settings,f))}}}
+function onData(b){
+b=b||{};var first=!loaded;B.projects=b.projects||{};B.members=b.members||{};B.settings=b.settings||{};
+for(var g in gone)if(!B.projects[g])delete gone[g];
+for(var hk in hold){if(hold[hk].t>Date.now()&&B.projects[hk])Object.assign(B.projects[hk],hold[hk].f);else delete hold[hk]}
+for(var sk in sh){if(sh[sk].t>Date.now())B.settings[sk]=sh[sk].v;else delete sh[sk]}
+if(first){var m=B.members[mid];if(m){me.votes=m.votes||{};if(m.name&&!me.name)me.name=m.name;if($("un").value!==me.name)$("un").value=me.name||""}}
+loaded=true;refresh();
+if(usr){var ids=Object.keys(B.members).filter(function(i){return i!==mid&&!names[i]});if(ids.length)usr.profiles(ids).then(function(p){for(var i in p)names[i]=p[i].name||"Member";refresh()}).catch(function(){})}}
+function setupSync(url){
+var inv=location.href.split("#")[0]+"#sync="+encodeURIComponent(url||"");
+$("su").value=url||"";$("sx").hidden=!url;$("siw").hidden=!url;$("si").value=url?inv:"";
+$("sc").onclick=function(){var u=$("su").value.trim();if(!/^https:\/\/.+/.test(u)){banner("Paste the full database URL, starting with https://");return}ls("pf_sync",u);location.hash="";location.reload()};
+$("sx").onclick=function(){ls("pf_sync",null);location.hash="";location.reload()};
+$("sk").onclick=function(){var e=$("si");e.select();try{navigator.clipboard.writeText(e.value)}catch(x){}try{document.execCommand("copy")}catch(x){}}}
+(async function(){
+var hs=(location.hash||"").match(/sync=([^&]+)/);if(hs){try{ls("pf_sync",decodeURIComponent(hs[1]))}catch(e){}}
+var url=ls("pf_sync");me.name=ls("pf_name")||"";
+try{if(window.claude&&claude.use){usr=await claude.use("user");var db=await claude.use("db");dlc=await claude.use("downloads");var id=usr&&await usr.id();
+if(db&&id){mode="claude";mid=id;be=claudeBackend(db);try{me.name=(await usr.me()).name||"You"}catch(e){}
+try{if((await usr.can("data.write"))===false){ro=true;banner("You can view the board but not edit it. Ask the owner for contributor access.")}}catch(e){}}}}catch(e){usr=null;dlc=null}
+if(!be&&url){mode="sync";mid=ls("pf_mid")||("m"+Date.now().toString(36)+Math.random().toString(36).slice(2,6));ls("pf_mid",mid);be=fbBackend(url)}
+if(!be){mode="local";mid="me";be=localBackend();banner("Working alone on this device. Open Team sync below to share with your team.")}
+if(mode!=="claude"){$("un").hidden=false;$("un").value=me.name;$("sy").hidden=false;setupSync(mode==="sync"?url:"")}
+$("prt").textContent=dlc?"Download results (CSV)":"Print / PDF";
+be.start(onData)})();
+</script>
+</body>
+</html>
